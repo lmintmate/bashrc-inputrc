@@ -6,6 +6,8 @@ fi
 # source it
 source $HOME/polyglot.sh
 
+bind 'set show-mode-in-prompt off'
+
 export MANROFFOPT='-c'
 export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)
 export LESS_TERMCAP_md=$(tput bold; tput setaf 1)
