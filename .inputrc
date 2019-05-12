@@ -1,0 +1,14 @@
+$include /etc/inputrc
+
+set completion-ignore-case on
+
+set completion-map-case on
+
+set completion-prefix-display-length 3
+
+set show-all-if-ambiguous on
+
+set colored-stats on
+
+"\e[A": history-search-backward
+"\e[B": history-search-forward

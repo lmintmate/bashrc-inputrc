@@ -1,0 +1,144 @@
+#+title: My literate, frameworkless bashrc and inputrc
+
+* Table of Contents                                                     :TOC_3:
+- [[#introduction][Introduction]]
+  - [[#how-the-magic-is-done][How the magic is done]]
+- [[#bashrc][bashrc]]
+  - [[#bootstrap-the-prompt][Bootstrap the prompt]]
+  - [[#colored-man-pages][Colored man pages]]
+  - [[#set-terminal-title][Set terminal title]]
+  - [[#custom-functions][Custom functions]]
+  - [[#history-file-size-settings][History file size settings]]
+  - [[#options][Options]]
+  - [[#aliases][Aliases]]
+  - [[#settings-for-external-programs][Settings for external programs]]
+- [[#inputrc][inputrc]]
+
+* Introduction
+After configuring my zshrc, I decided to also configure my bashrc and inputrc, as sometimes I need to switch over to bash, and I wanted thus to customize that environment to my tastes as well. I make my config of these literate, as I like commenting on stuff.
+** How the magic is done
+This time I decided to put the configuration for both ~.bashrc~ and ~.inputrc~ in one place. I found that I could do so by setting the tangle parameters under each heading I wanted to export to a file, like so (see [[https://org-babel.readthedocs.io/en/latest/header-args/#subtree-header-arguments][here]]):
+#+begin_example
+:PROPERTIES:
+:header-args: :tangle .bashrc
+:END:
+#+end_example
+Afterwards, all headings that have such parameters are exported to diffeent files upon tangling, depending on the filename defined in the ~:tangle~ section.
+* bashrc
+:PROPERTIES:
+:header-args: :tangle .bashrc
+:END:
+** Bootstrap the prompt
+I'm using the [[https://github.com/agkozak/polyglot][polyglot prompt]], so I need to download and source it. Here I use a conditional to automate the downloading of the code for the prompt (this requires ~wget~). Immediately afterwards the prompt is sourced.
+#+begin_src sh
+# polyglot prompt
+# download it
+if [[ ! -f $HOME/polyglot.sh ]]; then
+  wget https://raw.githubusercontent.com/agkozak/polyglot/master/polyglot.sh
+fi
+# source it
+source $HOME/polyglot.sh
+#+end_src
+** Colored man pages
+See [[https://russellparker.me/post/2018/02/23/adding-colors-to-man/][Russell Parker | Adding Colors to man]].
+#+begin_src sh
+export MANROFFOPT='-c'
+export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)
+export LESS_TERMCAP_md=$(tput bold; tput setaf 1)
+export LESS_TERMCAP_me=$(tput sgr0)
+export LESS_TERMCAP_so=$(tput bold; tput setaf 3; tput setab 4)
+export LESS_TERMCAP_se=$(tput rmso; tput sgr0)
+export LESS_TERMCAP_us=$(tput bold; tput setaf 2)
+export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)
+export LESS_TERMCAP_mr=$(tput rev)
+export LESS_TERMCAP_mh=$(tput dim)
+#+end_src
+** Set terminal title
+Setting the terminal title is much harder on bash than on zsh, because bash lacks functions that make this comparatively easy to on zsh. The easiest way I found to implement something like that is [[https://stackoverflow.com/a/7110386][here]], but the downside is that it then uses the command last used in the previous session as a title when a new terminal session is started.
+#+begin_src sh
+trap 'echo -ne "\033]2;$(history 1 | sed "s/^[ ]*[0-9]*[ ]*//g")\007"' DEBUG
+#+end_src
+** Custom functions
+Custom function to create a directory and cd into it (found from [[https://github.com/yochem/dotfiles/blob/master/.config/bash/functions#L67][here]]).
+#+begin_src sh
+mkcd() { mkdir "$1"; cd "$1"; }
+#+end_src
+** History file size settings
+#+begin_src sh
+HISTSIZE=10000
+HISTFILESIZE=50000
+#+end_src
+** Options
+Disable using ctrl-d to exit the shell. Set a high margin just to make sure.
+#+begin_src sh
+export IGNOREEOF=100
+#+end_src
+Don't save in history commands that are the same as the previous command.
+#+begin_src sh
+HISTCONTROL=ignoredups
+#+end_src
+Append to the history file, don't overwrite it.
+#+begin_src sh
+shopt -s histappend
+#+end_src
+Automatically cd when the target is a directory without having to precede the target with cd.
+#+begin_src sh
+shopt -s autocd
+#+end_src
+Correct minor errors in the spelling of a directory component in a cd command.
+#+begin_src sh
+shopt -s cdspell
+#+end_src
+** Aliases
+#+begin_src sh
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias ll='ls -lh'
+alias la='ls -lah'
+alias termclock="tty-clock -b -c -C 6 -f \"%A %d/%m/%y\" -B -a 100000000 -d 0"
+#+end_src
+** Settings for external programs
+Setting for less, so that the output of git-log won't remain printed to my terminal.
+#+begin_src sh
+export LESS=-R
+#+end_src
+Enable true color for the micro text editor
+#+begin_src sh
+export MICRO_TRUECOLOR=1
+#+end_src
+* inputrc
+:PROPERTIES:
+:header-args: :tangle .inputrc
+:END:
+Bash (and other programs that use the Readline library) use the completion and keybinding settings defined in ~.inputrc~, so we need to customize this file as well.\\
+First include the ~/etc/inputrc/~ file, as we don't want to lose the defaults it defines.
+#+begin_src sh
+$include /etc/inputrc
+#+end_src
+Ignore case when using tab completion (found from [[http://seenaburns.com/bash-unix-tools/][Bash and Unix tools | Seena Burns]])
+#+begin_src sh
+set completion-ignore-case on
+#+end_src
+Treat hyphens (‘-’) and underscores (‘_’) as equivalent when performing case-insensitive filename matching and completion (see [[https://www.gnu.org/software/bash/manual/html_node/Readline-Init-File-Syntax.html][Readline Init File Syntax (Bash Reference Manual)]]).
+#+begin_src sh
+set completion-map-case on
+#+end_src
+Set the maximum number of characters to be the common prefix to display for completions. More than the defined number are displayed by an ellipsis. This is useful when there are a lot of similar filenames e.g. ~Screenshot_~ (see [[https://www.topbug.net/blog/2017/07/31/inputrc-for-humans/][A ~/.inputrc for Humans - Top Bug Net]]).
+#+begin_src sh
+set completion-prefix-display-length 3
+#+end_src
+Show all the suggestions after pressing tab once.
+#+begin_src sh
+set show-all-if-ambiguous on
+#+end_src
+Display possible completions using different colors to indicate their file type.
+#+begin_src sh
+set colored-stats on
+#+end_src
+Map the up and down arrows to search the history from after the point of the cursor e.g. after writing ~man~ pressing up and down will find all history entries beginning with ~man~ (found from [[http://seenaburns.com/bash-unix-tools/][Bash and Unix tools | Seena Burns]]).
+#+begin_src sh
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+#+end_src
