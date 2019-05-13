@@ -88,6 +88,10 @@ Disable using ctrl-d to exit the shell. Set a high margin just to make sure.
 #+begin_src sh
 export IGNOREEOF=100
 #+end_src
+Disable flow control, as to be able to use Ctrl-s to search forward in the history (see [[https://unix.stackexchange.com/a/515257][here]]).
+#+begin_src sh
+stty -ixon
+#+end_src
 Don't save in history commands that are the same as the previous command.
 #+begin_src sh
 HISTCONTROL=ignoredups

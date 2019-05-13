@@ -33,6 +33,8 @@ HISTFILESIZE=50000
 
 export IGNOREEOF=100
 
+stty -ixon
+
 HISTCONTROL=ignoredups
 
 shopt -s histappend
