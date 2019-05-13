@@ -1,3 +1,8 @@
+function command_not_found_handle {
+		   printf "%s: η εντολή δε βρέθηκε\n" "$1" >&2
+		   return 127
+}
+
 # polyglot prompt
 # download it
 if [[ ! -f $HOME/polyglot.sh ]]; then
