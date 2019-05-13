@@ -4,7 +4,9 @@
 - [[#introduction][Introduction]]
   - [[#how-the-magic-is-done][How the magic is done]]
 - [[#bashrc][bashrc]]
-  - [[#preliminaries-disable-command-not-found][Preliminaries: disable command-not-found]]
+  - [[#preliminaries][Preliminaries]]
+    - [[#disable-command-not-found][Disable command-not-found]]
+    - [[#enable-bash-completions][Enable bash completions]]
   - [[#bootstrap-the-prompt][Bootstrap the prompt]]
     - [[#dont-show-the-editing-mode-on-the-prompt][Don't show the editing mode on the prompt]]
   - [[#colored-man-pages][Colored man pages]]
@@ -30,13 +32,25 @@ Afterwards, all headings that have such parameters are exported to different fil
 :PROPERTIES:
 :header-args: :tangle .bashrc
 :END:
-** Preliminaries: disable command-not-found
+** Preliminaries
+*** Disable command-not-found
 On my system, in addition to the ~.bashrc~ file, also are loaded the contents of ~/etc/bash.bashrc~ before the ~.bashrc~ file itself, a behavior [[https://unix.stackexchange.com/questions/187369/when-is-etc-bash-bashrc-invoked/187372#187372][configured at compile time in Debian and derivatives of it (e.g. Ubuntu)]], and thus unavoidable. The main thing ~/etc/bash.bashrc~ loads is the ~command-not-found~ function which proposes names of packages from the repos when it sees a command it doesn't recognise, which might help others, but I'm not too fond of it. Thus here I disable this by overriding the function ~command_not_found_handle~ used by the conditional that detects if the ~command-not-found~ script is on the system. In particular, I copied the action it does when this command isn't found on both locations where it could be, and modified the message to be in my native language, as this was the only positive part of said script, that is that it translated the ~command-not-found~ string according to the user's locale.
 #+begin_src sh
 function command_not_found_handle {
 		   printf "%s: η εντολή δε βρέθηκε\n" "$1" >&2
 		   return 127
 }
+#+end_src
+*** Enable bash completions
+Here I enable the code for bash completion of various commands. This conditional was also included in the ~.bashrc~ installed by the system, a backup copy of which is found at ~/etc/skel/.bashrc~, as the files from there are deployed in the home directory of each new user (see [[http://www.linfo.org/etc_skel.html][/etc/skel - LINFO]] and [[https://askubuntu.com/questions/1045946/bashrc-vs-etc-skel-bashrc-why-are-there-two-bashrcs#1045951]['~/.bashrc' vs ' /etc/skel/.bashrc'. Why are there two '.bashrcs'? - Ask Ubuntu]]).
+#+begin_src sh
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
 #+end_src
 ** Bootstrap the prompt
 I'm using the [[https://github.com/agkozak/polyglot][polyglot prompt]], so I need to download and source it. Here I use a conditional to automate the downloading of the code for the prompt (this requires ~wget~). Immediately afterwards the prompt is sourced.
