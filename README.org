@@ -162,9 +162,9 @@ Set the maximum number of characters to be the common prefix to display for comp
 #+begin_src sh
 set completion-prefix-display-length 3
 #+end_src
-Show all the suggestions after pressing tab once.
+Bind tab to menu-complete, in order to cycle through suggestions
 #+begin_src sh
-set show-all-if-ambiguous on
+"\C-i": menu-complete
 #+end_src
 Display possible completions using different colors to indicate their file type.
 #+begin_src sh

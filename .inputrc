@@ -6,7 +6,7 @@ set completion-map-case on
 
 set completion-prefix-display-length 3
 
-set show-all-if-ambiguous on
+"\C-i": menu-complete
 
 set colored-stats on
 
